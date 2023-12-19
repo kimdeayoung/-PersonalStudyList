@@ -3,6 +3,7 @@
   Boatplane.cpp
   DeusExMachina.cpp
   Motorcycle.cpp
+  Person.cpp
   Sedan.cpp
   Trailer.cpp
   UBoat.cpp

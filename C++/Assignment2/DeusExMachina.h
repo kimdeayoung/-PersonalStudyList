@@ -12,7 +12,8 @@ namespace assignment2
 	class DeusExMachina
 	{
 	public:
-		~DeusExMachina();
+		DeusExMachina(const DeusExMachina&) = delete;
+		DeusExMachina& operator=(const DeusExMachina&) = delete;
 
 		static DeusExMachina* GetInstance();
 		void Travel() const;
@@ -22,6 +23,7 @@ namespace assignment2
 		const Vehicle* GetFurthestTravelled() const;
 	private:
 		DeusExMachina();
+		~DeusExMachina();
 		
 		static DeusExMachina* mInstance;
 
