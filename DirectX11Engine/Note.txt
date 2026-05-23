@@ -1,0 +1,113 @@
+// ====================
+// IA (Input Assembler)
+// ====================
+// Vertex Buffer
+// Index Buffer
+// Topology
+// Layout
+
+// ===================
+// Vertex Shader Stage
+// ===================
+// 정점을 3차원 모델 좌표계에서 NDC 2차원 좌표로 맵핑
+
+// Tessellation
+// Hull Shader
+// Domain Shader
+
+// ==========
+// Rasterizer
+// ==========
+
+// ============
+// Pixel Shader
+// ============
+// 픽셀당 호출되는 함수
+// 각 픽셀의 색상을 지정해서 렌더타겟에 출력
+
+// ==================
+// Output Merge State
+// ==================
+// DepthStencil State
+// BlendState State
+
+// 최종 출력
+// RenderTargetTexture
+// DepthStencilTexture
+
+회전 행렬
+삼각 함수의 합차 공식을 기본으로 사용함
+반지름 1의 원의 특정 점의 포지션을 알아내는 경우 (cos Theta, sin Theta)로 알아냄, 해당 포지션에서 특정 각도로 더 회전된 값을 알아내려면 (cos (Theta + Alpha), sin (Theta + Alpha)) 이때 합차 공식을 적용하면 쉽게 계산 가능
+cos (Theta + Alpha) = cos(Alpha) * cos(Theta) - sin(Alpha) * sin(Theta)
+sin (Theta + Alpha) = sin(Alpha) * cos(Theta) + cos(Alpha) * sin(Theta)
+
+계산 자체를 좀 더 단순화 시키기 위해 Alpha값을 0, Theta값을 회전 총량(Theta가 30이고 Alpha가 10이면 Theta를 40으로 치환)으로 계산하면 더쉽게 계산 가능
+회전을 원하는 축에 따라 행렬이 달라지며, 회전을 원하는 축은 1로 고정되고 회전하지 않는 축에서 회전 행렬 값이 곱해짐
+X축 회전
+1	0	0	0
+0	cos(theta)	sin(theta)	0
+0	-sin(theta)	cos(theta)	0
+0	0	0	1
+
+Y축 회전
+cos(theta)	0	-sin(theta)	0
+0	1	0	0
+sin(theta)	0	cos(theta)	0
+0	0	0	1
+
+Z축 회전
+cos(theta)	sin(theta)	0	0
+-sin(theta)	cos(theta)	0	0
+0	0	1	0
+0	0	0	1
+
+3축을 모두 적용해서 회전해야 하는 경우 Z -> X -> Y축으로 행렬 곱을 진행, 다만 짐벌락 현상이 발생할 수 있으므로 쿼터니언 연산이 필요
+
+물체 좌표계에서 월드 좌표계로 변환시에는 행렬 사용
+ScaleX 0 0 0
+0 ScaleY 0 0		* (Object PosX, Object PosY, Object PosZ, 1) // ObjectPos는 기본적으로 3차원이지만 동차행렬로 맞추기 위해 1을 적용
+0 0 ScaleZ 0
+PosX PosY PosZ 1
+
+물체 좌표계의 값과 위의 행렬을 곱해서 월드 좌표로 변환됨
+아래 예시가 뭔지 모르겠으면 행렬 곱 방식 확인
+Ex) (Object PosX * ScaleX) + PosX, (Object PosY * ScaleY) + PosY, (Object PosZ * ScaleZ) + PosZ
+
+방향 벡터 변환시 방향 벡터를 변환할 때는 행렬의 4번째 행(이동 값: _41, _42, _43)을 적용하면 안됨
+이유: 방향 벡터는 공간 상에서 '위치'를 가지지 않고 '방향과 크기'만 나타냅니다. 만약 개체의 위치(Pos) 값이 벡터에 더해지면,
+벡터의 방향과 크기가 완전히 왜곡되어 예상치 못한 값(엉뚱한 방향)이 되어 버림.
+해결 방법은 단순히 ObjectPos의 동차행렬을 맞추기 위해 적용된 값을 1이 아닌 0으로 하면 됨
+
+행렬끼리 모두 곱한 후 벡터를 곱하면 연산량이 줄어드므로 행렬끼리 곱한 후 오브젝트 벡터 계산
+다만 이때 곱셈 순서가 중요(이동을 한 후 회전이 되는경우, 회전이 된 후 이동하는 경우 최종 연산 값이 달라지기에) Scale * Rotation * Postion을 곱하는 순서를 반드시 지켜야함
+
+Camera View 행렬
+카메라를 기준으로 모든 물체의 상대적인 위치를 재정의 - 이때 카메라의 월드 좌표계의 포지션과 회전 값을 모두 0으로 만듦
+계산된 카메라의 View행렬을 곱하여 각 물체의 Transform 행렬을 카메라가 바라보는 방향으로 재정렬 - 이 과정들을 통해 이후 Projection 과정이 단순해짐
+
+View 행렬 = Translation Matrix(-Camera World Pos.x, -Camera World Pos.y, -Camera World Pos.z) * Rotation Inverse Matrix - 당연하지만 행렬은 교환 법칙이 성립되지 않기에 순서 보장 명확히
+Translation Matrix는 단순히 Camera의 WorldPosition을 0으로 만들 수 있는 값을 4x4 행렬로 변환
+Rotation Matrix의 경우 Forward Vector를 우선적으로 계산 - (target - Camera Position).Normailize()
+Up Vector는 임의로 (0, 1, 0)으로 설정 후 외적을 통해 Right Vector를 계산 - Cross(Up Vector, Forward Vector)
+이때 Up Vector는 정확한 회전 계산을 하지 않으며, 하늘을 기준 삼을 방향 값을 지정 - Right Vector를 계산하는데 굳이 UpVector의 정확한 값이 필요하지 않음(x축으로 회전된 오브젝트든 아니든 Right Vector는 언제나 같은 값임)
+Foward Vector와 Right Vector를 다시 외적하여, 정확한 Up Vector를 계산
+
+이미 회전된 카메라를 다시 회전되지 않은 상태(모든 Rotation 값이 0인 상태)로 변환해야 하기에 회전 행렬을 단위 행렬로 변환 시킬 역 행렬이 필요함 (7 + (-7)) = 0에서 -7이 7의 역 행렬과 동일하다고 생각하면 됨
+앞서 카메라의 Forward, Right, Up 벡터를 구하는 과정에서 모든 벡터는 각 벡터에게 서로 수직임 - 직교 행렬
+직교 행렬의 역행렬은 곧 전치 행렬이기에 단순히 Rotation Matrix(Right Vector, Up Vector, Forward Vector)를 전치 행렬로 변환 시킨 후 Translation Matrix와 곱 연산을 해주면 View 행렬이 완성됨
+
+Projection 행렬 - Perspective 기준
+카메라 공간 내에 들어온 물체를 모니터에 그리기 직전, 정규화 된 디바이스 좌표계(NDC Coordinates)로 변환
+View 행렬까지 진행 된 경우 물체는 원근감이라는 개념이 존재하지 않음 - 해당 물체가 좌표에 지정되는 것 뿐이지 어떤 물체가 더 가깝고, 멀리 있다는 개념이 없음
+이때 물체에 상이 맺히는 기준(Near Plane)을 적용하여 원근감을 표현
+
+View 행렬 계산시 이미 Position, Rotation은 0이기에 별도의 계산 없이 모든 기준 값을 0으로부터 시작 - 물체의 포지션 값은 이미 View Space로 변환된 Position임
+Perspective의 경우 FOV값을 사용하여, 카메라가 물체를 볼 수 있는 범위를 지정(이때 모양은 역삼각형)
+물체가 역삼각형 내에 있는 경우 물체가 Near Plane에 맺히는 점을 삼각형의 닮음 비로 계산 - 물체의 포지션과 원점을 기준으로 만들어낸 라인을 토대로 그린 삼각형을 NearPlane과 원점 기준으로도 다시 한번 그린다고 생각하면 편함
+삼각형의 닮음 비 = Near Plane의 Z값 : 물체의 Z 값 = Near Plane X : 물체의 X 값
+즉 물체의 X 값은 물체의 Z 값 * Near Plane X값으로 계산됨 - Near Plane X = 물체의 X값 / 물체의 Z 값(동일한 방법으로 X를 Y로 바꾸고 계산하면 NDC Y값이 나옴)
+
+다만 DirectX에선 위의 삼각형의 닮음비를 직접적으로 계산하진 않고 투영 행렬에 View Space 행렬을 곱하여 버텍스 셰이더의 Position 결과물로 리턴함
+버텍스 셰이더의 Position 결과물: (물체의 X 값 * X축 FOV 스케일, 물체의 Y값 * Y축 FOV 스케일, Z NDC를 위해 가공된 Z값, 물체의 Z값)
+일반적인 4x4 행렬 곱셈만으로 분모에 들어가야하는 물체의 Z 값을 표현할 수 없음, 이때 w 값에 분모에 들어가야하는 z 값을 넣어 주고,
+레스터라이저 단계에서 Projection 계산시 w값을 위에 말한 삼각형의 닮음 비 방식으로 계산해준 후 결과물을 픽셀 셰이더에 리턴 - 이 값이 Clip Space 값임
