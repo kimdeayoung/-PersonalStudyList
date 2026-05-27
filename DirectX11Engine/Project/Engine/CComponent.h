@@ -2,6 +2,8 @@
 #include "CEntity.h"
 #include "CGameObject.h"
 
+#define GET_COMPONENT(Type) C##Type* Type() { return m_owner->Type();}
+
 class CComponent :
     public CEntity
 {
@@ -13,9 +15,10 @@ public:
     COMPONENT_TYPE GetComponentType() { return m_componentType; }
     CGameObject* GetOwner() { return m_owner; }
 
-    CTransform* Transform() { return GetOwner()->Transform(); }
-    CMeshRenderComponent* MeshRenderer() { return GetOwner()->MeshRenderer(); }
-    CCamera* Camera() { return GetOwner()->Camera(); }
+    GET_COMPONENT(Transform);
+    GET_COMPONENT(MeshRender);
+    GET_COMPONENT(Camera);
+    GET_COMPONENT(Collider2D);
 
 public:
     virtual void Start() {}

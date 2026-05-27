@@ -22,14 +22,30 @@ void CTransform::FinalUpdate()
 	m_matWorld = matScale * matRotation * matPosition;
 
 	//오브젝트의 방향 정보 계산
-	m_relativeDir[(UINT)DIR_TYPE::RIGHT] = DirectX::XMVector3TransformNormal(g_xAxis, matRotation);
-	m_relativeDir[(UINT)DIR_TYPE::RIGHT].Normalize();
+	for (int i = 0; i < (UINT)DIR_TYPE::LENGTH; ++i)
+	{
+		m_relativeDir[i] = DirectX::XMVector3TransformNormal(m_worldDir[i], m_matWorld);
+		m_relativeDir[i].Normalize();
+	}
 
-	m_relativeDir[(UINT)DIR_TYPE::UP] = DirectX::XMVector3TransformNormal(g_yAxis, matRotation);
-	m_relativeDir[(UINT)DIR_TYPE::UP].Normalize();
+	CGameObject* parent = GetOwner()->GetParent();
+	if (parent != nullptr)
+	{
+		m_matWorld *= parent->Transform()->GetWorldMatrix();
 
-	m_relativeDir[(UINT)DIR_TYPE::FRONT] = DirectX::XMVector3TransformNormal(g_zAxis, matRotation);
-	m_relativeDir[(UINT)DIR_TYPE::FRONT].Normalize();
+		for (int i = 0; i < (UINT)DIR_TYPE::LENGTH; ++i)
+		{
+			m_worldDir[i] = DirectX::XMVector3TransformNormal(m_worldDir[i], m_matWorld);
+			m_worldDir[i].Normalize();
+		}
+	}
+	else
+	{
+		for (int i = 0; i < (UINT)DIR_TYPE::LENGTH; ++i)
+		{
+			m_worldDir[i] = m_relativeDir[i];
+		}
+	}
 }
 
 void CTransform::Binding()

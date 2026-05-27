@@ -10,9 +10,15 @@
 
 CCamera::CCamera()
 	: CComponent(COMPONENT_TYPE::CAMERA)
+	, m_projectionType(PROJECTION_TYPE::PERSPECTIVE)
 	, m_camPriority(-1)
-	, m_farPlane(1000)
+	, m_fov(DirectX::XM_PI / 3)
+	, m_farPlane(10000)
+	, m_orthograhpicScale(1)
+	, m_layerMask(0)
 {
+	Vector2 renderResoulution = CDevice::GetInstance()->GetRenderResoulution();
+	m_aspectRatio = renderResoulution.x / renderResoulution.y;
 }
 
 CCamera::~CCamera()
@@ -33,6 +39,17 @@ void CCamera::SetCamPriority(int priority)
 	}
 }
 
+void CCamera::SetAspectRatio(Vector2 screenSize)
+{
+	CDevice::GetInstance()->SetRenderResoulution(screenSize);
+	m_aspectRatio = screenSize.x / screenSize.y;
+}
+
+void CCamera::ToggleLayerEnable(int layerIndex)
+{
+	m_layerMask ^= (1 << layerIndex);
+}
+
 void CCamera::FinalUpdate()
 {
 	// View 행렬 계산
@@ -50,9 +67,20 @@ void CCamera::FinalUpdate()
 
 	m_matView *= matRot;
 
-	Vector2 renderResoulution = CDevice::GetInstance()->GetRenderResoulution();
 	// Proj 행렬 계산
-	m_matProj = DirectX::XMMatrixPerspectiveFovLH((DirectX::XM_PI / 3), renderResoulution.x / renderResoulution.y, 1, m_farPlane);
+	switch (m_projectionType)
+	{
+	case PROJECTION_TYPE::ORTHOGRAPHIC:
+	{
+		Vector2 renderResoulution = CDevice::GetInstance()->GetRenderResoulution();
+		m_matProj = DirectX::XMMatrixOrthographicLH(renderResoulution.x * m_orthograhpicScale, renderResoulution.y * m_orthograhpicScale, 1.f, m_farPlane);
+	}
+		break;
+	case PROJECTION_TYPE::PERSPECTIVE:
+		m_matProj = DirectX::XMMatrixPerspectiveFovLH(m_fov, m_aspectRatio, 1, m_farPlane);
+		break;
+	}
+
 }
 
 void CCamera::Render()
@@ -64,7 +92,10 @@ void CCamera::Render()
 
 	for (UINT i = 0; i < MAX_LAYER; ++i)
 	{
-		CLayer* layer = level->GetLayer(i);
-		layer->Render();
+		if (m_layerMask & (1 << i))
+		{
+			CLayer* layer = level->GetLayer(i);
+			layer->Render();
+		}
 	}
 }

@@ -2,6 +2,7 @@
 #include "CLevel.h"
 
 #include "CLayer.h"
+#include "CGameObject.h"
 
 CLevel::CLevel()
 	: m_layers{}
@@ -41,15 +42,13 @@ void CLevel::FinalUpdate()
 	}
 }
 
-void CLevel::Render()
-{
-	for (UINT i = 0; i < MAX_LAYER; ++i)
-	{
-		m_layers[i]->Render();
-	}
-}
-
 void CLevel::AddObject(UINT layerIndex, CGameObject* object)
 {
 	m_layers[layerIndex]->AddObject(object);
+	object->SetLayer(layerIndex);
+}
+
+void CLevel::RemoveObject(CGameObject* object)
+{
+	m_layers[object->GetLayer()]->RemoveObject(object);
 }

@@ -29,5 +29,6 @@ void Safe_Del_Vector(std::vector<T*>& vector)
 
 void DrawDebugRect(const Vector3& position, const Vector3& rotation, const Vector3& scale, float durtaion, const Vector4& color);
 void DrawDebugRect(const Matrix& matWorld, float durtaion, const Vector4& color);
-void DrawDebugCircle();
+void DrawDebugCircle(const Vector3& position, float radius, float duration, const Vector4& color);
+void DrawDebugCircle(const Matrix& matWorld, float durtaion, const Vector4& color);
 void DrawDebugLine();

@@ -29,6 +29,9 @@ private:
 	ComPtr<ID3D11SamplerState> m_samplerState[2];
 	ComPtr<ID3D11RasterizerState> m_rasterizerState[(UINT)RASTERIZER_STATE_TYPE::LENGTH];
 
+	ComPtr<ID3D11DepthStencilState> m_depthStencilState[(UINT)DEPTHSTENCIL_STATE_TYPE::LENGTH];
+	ComPtr<ID3D11BlendState> m_blendState[(UINT)BLEND_STATE_TYPE::LENGTH];
+
 	CConstBuffer* m_constantBuffer[(UINT)CONST_BUFFER_TYPE::LENGTH];
 
 public:
@@ -38,15 +41,21 @@ public:
 	int CreateConstBuffer();
 	int CreateSamplerState();
 	int CreateRasterizerState();
+	int CreateDepthStencilState();
+	int CreateBlendState();
 
 	ID3D11Device* GetDevice() { return m_device.Get(); }
 	ID3D11DeviceContext* GetDeviceContext() { return m_context.Get(); }
 
 	Vector2 GetRenderResoulution() { return m_renderResoulution; }
+	void SetRenderResoulution(const Vector2& resoulution) { m_renderResoulution = resoulution; }
 
 	CConstBuffer* GetConstBuffer(CONST_BUFFER_TYPE type) { return m_constantBuffer[(UINT)type]; }
 
 	ComPtr<ID3D11RasterizerState> GetRasterizerState(RASTERIZER_STATE_TYPE type) { return m_rasterizerState[(UINT)type]; }
+
+	ComPtr<ID3D11DepthStencilState> GetDepthStencilState(DEPTHSTENCIL_STATE_TYPE type) { return m_depthStencilState[(UINT)type]; }
+	ComPtr<ID3D11BlendState> GetBlendState(BLEND_STATE_TYPE type) { return m_blendState[(UINT)type]; }
 
 	void ClearTarget();
 	void Present();

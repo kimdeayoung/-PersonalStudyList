@@ -15,7 +15,7 @@ void CPlayerScript::Update()
 	CTransform* transform = GetOwner()->Transform();
 	Vector3 pos = transform->GetRelativePos();
 
-	float deltaTime = DT
+	float deltaTime = DT;
 
 	if (KEY_PRESSED(KEY::UP))
 	{

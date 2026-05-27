@@ -6,6 +6,9 @@
 #include "components.h"
 #include "func.h"
 
+#include "CCameraMoveScipt.h"
+#include "CPlayerScript.h"
+
 CLevelManager::CLevelManager()
 	: m_currentLevel(nullptr)
 {
@@ -31,6 +34,8 @@ void CLevelManager::Init()
 		pObject->AddComponent(new CCamera);
 		pObject->AddComponent(new CCameraMoveScipt);
 		pObject->Camera()->SetCamPriority(0);
+		pObject->Camera()->SetProjectionType(PROJECTION_TYPE::ORTHOGRAPHIC);
+		pObject->Camera()->SetLayerEverything();
 
 		m_currentLevel->AddObject(0, pObject);
 	}
@@ -39,18 +44,20 @@ void CLevelManager::Init()
 		CGameObject* pObject = new CGameObject;
 		pObject->SetName(L"Player");
 		pObject->AddComponent(new CTransform);
-		pObject->AddComponent(new CMeshRenderComponent);
+		pObject->AddComponent(new CMeshRender);
 		pObject->AddComponent(new CPlayerScript);
+		pObject->AddComponent(new CCollider2D);
 	
 		pObject->Transform()->SetRelativePos(Vector3(0.f, 0.0f, 1.1f));
-		pObject->Transform()->SetRelativeScale(Vector3(1.f, 1.0f, 1.1f));
-		pObject->MeshRenderer()->SetMesh(CAssetManager::GetInstance()->FindAsset<CMesh>(L"RectMesh"));
-		pObject->MeshRenderer()->SetMaterial(CAssetManager::GetInstance()->FindAsset<CMaterial>(L"StdMat"));
-		pObject->MeshRenderer()->GetMaterial()->SetTexture(TEX_0, CAssetManager::GetInstance()->FindAsset<CTexture>(L"background"));
-		m_currentLevel->AddObject(0, pObject);
-	}
+		pObject->Transform()->SetRelativeScale(Vector3(50.f, 50.0f, 1.1f));
+		pObject->MeshRender()->SetMesh(CAssetManager::GetInstance()->FindAsset<CMesh>(L"RectMesh"));
+		pObject->MeshRender()->SetMaterial(CAssetManager::GetInstance()->FindAsset<CMaterial>(L"StdMat"));
+		pObject->MeshRender()->GetMaterial()->SetTexture(TEX_0, CAssetManager::GetInstance()->FindAsset<CTexture>(L"background"));
 
-	DrawDebugRect(Vector3(0.f, 0.f, 500.f), Vector3(0.f, 0.f, 0.f), Vector3(100.f, 100.f, 100.f), 1100.f, Vector4(0.f, 1.f, 0.f, 1.f));
+		pObject->Collider2D()->SetOffset(Vector3(0.f, 0.0f, 0.0f));
+		pObject->Collider2D()->SetScale(Vector3(1.f, 1.f, 1.f));
+		m_currentLevel->AddObject(1, pObject);
+	}
 }
 
 void CLevelManager::Update()
@@ -59,13 +66,5 @@ void CLevelManager::Update()
 	{
 		m_currentLevel->Update();
 		m_currentLevel->FinalUpdate();
-	}
-}
-
-void CLevelManager::Render()
-{
-	if (m_currentLevel != nullptr)
-	{
-		m_currentLevel->Render();
 	}
 }

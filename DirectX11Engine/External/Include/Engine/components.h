@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CTransform.h"
-#include "CMeshRenderComponent.h"
-#include "CPlayerScript.h"
+#include "CMeshRender.h"
 #include "CCamera.h"
-#include "CCameraMoveScipt.h"
+#include "CCollider2D.h"

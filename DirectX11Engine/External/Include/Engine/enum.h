@@ -54,6 +54,27 @@ enum class RASTERIZER_STATE_TYPE
 	LENGTH,
 };
 
+enum class DEPTHSTENCIL_STATE_TYPE
+{
+	LESS,
+	LESS_EQUAL,
+
+	GRATER,
+
+	NO_TEST,
+	NO_TEST_NO_WRITE,
+
+	LENGTH,
+};
+
+enum class BLEND_STATE_TYPE
+{
+	DEFAULT, // Src(1.0f) Destination(0.0f)
+	ALPHA_BLEND,  // Src(A) Destination(1.0f - A)
+	ONE_ONE,  // Src(1.0f) Destination(1.0f)
+	LENGTH,
+};
+
 enum class DIR_TYPE
 {
 	RIGHT,
@@ -121,4 +142,10 @@ enum class DEBUG_SHAPE
 
 	CUBE,
 	SPHERE,
+};
+
+enum class PROJECTION_TYPE
+{
+	ORTHOGRAPHIC,
+	PERSPECTIVE,
 };

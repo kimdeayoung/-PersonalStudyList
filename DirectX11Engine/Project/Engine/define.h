@@ -13,6 +13,6 @@
 #define KEY_RELEASED(Key) KEY_CHECK(Key, KEY_STATE::RELEASED)
 #define KEY_NONE(Key) KEY_CHECK(Key, KEY_STATE::NONE)
 
-#define DT CTimeManager::GetInstance()->GetDeltaTime();
+#define DT CTimeManager::GetInstance()->GetDeltaTime()
 
 #define MAX_LAYER 32

@@ -9,6 +9,11 @@ private:
 public:
     virtual void Update() override;
 
+private:
+    void MoveByPerspective();
+    void MoveByOrthographic();
+
+public:
     CCameraMoveScipt();
     ~CCameraMoveScipt();
 };

@@ -9,6 +9,7 @@
 #include "CLevelManager.h"
 #include "CRenderManager.h"
 #include "CDebugRenderManager.h"
+#include "CCollisionManager.h"
 
 CEngineBase::CEngineBase()
 	: m_hwnd(nullptr)
@@ -52,6 +53,7 @@ void CEngineBase::Update()
 	CKeyManager::GetInstance()->Update();
 	
 	CLevelManager::GetInstance()->Update();
+	CCollisionManager::GetInstance()->Update();
 
 	CDevice::GetInstance()->ClearTarget();
 	

@@ -71,6 +71,7 @@ void CAssetManager::CreateDefaultMesh()
 	}
 
 	vertexes.clear();
+	indexes.clear();
 
 	{
 		Vertex vertex;
@@ -79,7 +80,7 @@ void CAssetManager::CreateDefaultMesh()
 		vertexes.push_back(vertex);
 	}
 
-	float radius = 0.5f;
+	float radius = 1.0f;
 	UINT slice = 40;
 	float angleStep = (2 * DirectX::XM_PI) / slice;
 
@@ -99,16 +100,24 @@ void CAssetManager::CreateDefaultMesh()
 		indexes.push_back(i + 1);
 	}
 
-	for (UINT i = 0; i < slice; ++i)
 	{
-		indexes.push_back(0);
-		indexes.push_back(i + 2);
+		Ptr<CMesh> circleMesh(new CMesh());
+		circleMesh->Create(vertexes.data(), (UINT)vertexes.size(), indexes.data(), (UINT)indexes.size());
+		AddAsset(L"CircleMesh", circleMesh);
+	}
+	
+	indexes.clear();
+
+	for (UINT i = 0; i <= slice; ++i)
+	{
 		indexes.push_back(i + 1);
 	}
 
-	Ptr<CMesh> circleMesh(new CMesh());
-	circleMesh->Create(vertexes.data(), (UINT)vertexes.size(), indexes.data(), (UINT)indexes.size());
-	AddAsset(L"CircleMesh", circleMesh);
+	{
+		Ptr<CMesh> circleMesh(new CMesh());
+		circleMesh->Create(vertexes.data(), (UINT)vertexes.size(), indexes.data(), (UINT)indexes.size());
+		AddAsset(L"CircleMesh_Debug", circleMesh);
+	}
 }
 
 void CAssetManager::CreateDefaultTexture()
@@ -152,6 +161,7 @@ void CAssetManager::CreateDefaultGraphicShader()
 		pShader->CreateVertexShader(path + L"shader\\Debug.fx", "VS_DebugShape");
 		pShader->CreatePixelShader(path + L"shader\\Debug.fx", "PS_DebugShape");
 		pShader->SetRasterizerType(RASTERIZER_STATE_TYPE::CULL_NONE);
+		pShader->SetDepthStencilType(DEPTHSTENCIL_STATE_TYPE::NO_TEST_NO_WRITE);
 		pShader->SetTopologyType(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
 		AddAsset<CGraphicShader>(L"DebugShape", pShader);

@@ -8,15 +8,15 @@
 
 #include "CGameObject.h"
 #include "CTransform.h"
-#include "CMeshRenderComponent.h"
+#include "CMeshRender.h"
 
 CDebugRenderManager::CDebugRenderManager()
 	:m_debugRenderObject(new CGameObject)
 {
 	m_debugRenderObject->AddComponent(new CTransform);
-	m_debugRenderObject->AddComponent(new CMeshRenderComponent);
+	m_debugRenderObject->AddComponent(new CMeshRender);
 
-	m_debugRenderObject->MeshRenderer()->SetMaterial(CAssetManager::GetInstance()->FindAsset<CMaterial>(L"DebugShapeMat"));
+	m_debugRenderObject->MeshRender()->SetMaterial(CAssetManager::GetInstance()->FindAsset<CMaterial>(L"DebugShapeMat"));
 }
 
 CDebugRenderManager::~CDebugRenderManager()
@@ -29,7 +29,7 @@ void CDebugRenderManager::Render()
 {
 	std::list<DebugShapeInfo>::iterator iter = m_shapeInfo.begin();
 
-	float deltaTime = DT
+	float deltaTime = DT;
 	while (iter != m_shapeInfo.end())
 	{
 		m_debugRenderObject->Transform()->SetWorldMatrix(iter->matWorld);
@@ -37,23 +37,23 @@ void CDebugRenderManager::Render()
 		switch (iter->ShapeType)
 		{
 		case DEBUG_SHAPE::RECT:
-			m_debugRenderObject->MeshRenderer()->SetMesh(CAssetManager::GetInstance()->FindAsset<CMesh>(L"RectMesh_Debug"));
+			m_debugRenderObject->MeshRender()->SetMesh(CAssetManager::GetInstance()->FindAsset<CMesh>(L"RectMesh_Debug"));
 			break;
 		case DEBUG_SHAPE::CIRCLE:
-			m_debugRenderObject->MeshRenderer()->SetMesh(CAssetManager::GetInstance()->FindAsset<CMesh>(L"CircleMesh"));
+			m_debugRenderObject->MeshRender()->SetMesh(CAssetManager::GetInstance()->FindAsset<CMesh>(L"CircleMesh_Debug"));
 			break;
 		case DEBUG_SHAPE::LINE:
-			m_debugRenderObject->MeshRenderer()->SetMesh(CAssetManager::GetInstance()->FindAsset<CMesh>(L"LineMesh"));
+			m_debugRenderObject->MeshRender()->SetMesh(CAssetManager::GetInstance()->FindAsset<CMesh>(L"LineMesh"));
 			break;
 		case DEBUG_SHAPE::CUBE:
-			m_debugRenderObject->MeshRenderer()->SetMesh(CAssetManager::GetInstance()->FindAsset<CMesh>(L"CubeMesh"));
+			m_debugRenderObject->MeshRender()->SetMesh(CAssetManager::GetInstance()->FindAsset<CMesh>(L"CubeMesh"));
 			break;
 		case DEBUG_SHAPE::SPHERE:
-			m_debugRenderObject->MeshRenderer()->SetMesh(CAssetManager::GetInstance()->FindAsset<CMesh>(L"SphereMesh"));
+			m_debugRenderObject->MeshRender()->SetMesh(CAssetManager::GetInstance()->FindAsset<CMesh>(L"SphereMesh"));
 			break;
 		}
 
-		Ptr<CMaterial> material = m_debugRenderObject->MeshRenderer()->GetMaterial();
+		Ptr<CMaterial> material = m_debugRenderObject->MeshRender()->GetMaterial();
 		material->SetScalarParam(VECTOR4_0, iter->color);
 
 		m_debugRenderObject->Render();

@@ -11,6 +11,7 @@ private:
 	Vector3 m_relativeDir[(UINT)DIR_TYPE::LENGTH];
 
 	Matrix m_matWorld;
+	Vector3 m_worldDir[(UINT)DIR_TYPE::LENGTH];
 public:
 	virtual void FinalUpdate() override;
 
@@ -31,6 +32,7 @@ public:
 	void SetRelativeScale(float x, float y, float z) { m_relativeScale = Vector3(x, y, z); }
 	void SetRelativeRotation(float x, float y, float z) { m_relativeRotation = Vector3(x, y, z); }
 
+	Matrix GetWorldMatrix() { return m_matWorld; }
 	void SetWorldMatrix(const Matrix& matrix) { m_matWorld = matrix; }
 
 public:

@@ -75,6 +75,16 @@ int CDevice::Init(HWND hwnd, Vector2 resolution)
 		return E_FAIL;
 	}
 
+	if (FAILED(CreateDepthStencilState()))
+	{
+		return E_FAIL;
+	}
+
+	if (FAILED(CreateBlendState()))
+	{
+		return E_FAIL;
+	}
+
 	return S_OK;
 }
 
@@ -200,7 +210,7 @@ int CDevice::CreateRasterizerState()
 
 		m_device->CreateRasterizerState(&desc, m_rasterizerState[(UINT)RASTERIZER_STATE_TYPE::CULL_FRONT].GetAddressOf());
 	}
-	
+
 	{
 		D3D11_RASTERIZER_DESC desc = {};
 		desc.CullMode = D3D11_CULL_NONE;
@@ -215,6 +225,106 @@ int CDevice::CreateRasterizerState()
 		desc.FillMode = D3D11_FILL_WIREFRAME;
 
 		m_device->CreateRasterizerState(&desc, m_rasterizerState[(UINT)RASTERIZER_STATE_TYPE::WIRE_FRAME].GetAddressOf());
+	}
+
+	return S_OK;
+}
+
+int CDevice::CreateDepthStencilState()
+{
+	m_depthStencilState[(UINT)DEPTHSTENCIL_STATE_TYPE::LESS] = nullptr;
+
+	{
+		D3D11_DEPTH_STENCIL_DESC desc = {};
+		desc.DepthEnable = true; // 깊이 비교 기능 사용
+		desc.StencilEnable = false; // 스텐실 기능 비활성화
+		desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL; // 먼저 기록된 픽셀의 뎁스보다 작거나 같은 경우 통과
+		desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL; // 뎁스 테스트 성공 시, 깊이 기록
+
+		m_device->CreateDepthStencilState(&desc, m_depthStencilState[(UINT)DEPTHSTENCIL_STATE_TYPE::LESS_EQUAL].GetAddressOf());
+	}
+
+	{
+		D3D11_DEPTH_STENCIL_DESC desc = {};
+		desc.DepthEnable = true; // 깊이 비교 기능 사용
+		desc.StencilEnable = false; // 스텐실 기능 비활성화
+		desc.DepthFunc = D3D11_COMPARISON_GREATER; // 먼저 기록된 픽셀의 뎁스보다 작거나 같은 경우 통과
+		desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL; // 뎁스 테스트 성공 시, 깊이 기록
+
+		m_device->CreateDepthStencilState(&desc, m_depthStencilState[(UINT)DEPTHSTENCIL_STATE_TYPE::GRATER].GetAddressOf());
+	}
+
+	{
+		D3D11_DEPTH_STENCIL_DESC desc = {};
+		desc.DepthEnable = true; // 깊이 비교 기능 사용
+		desc.StencilEnable = false; // 스텐실 기능 비활성화
+		desc.DepthFunc = D3D11_COMPARISON_ALWAYS; // 먼저 기록된 픽셀의 뎁스보다 작거나 같은 경우 통과
+		desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL; // 뎁스 테스트 성공 시, 깊이 기록
+
+		m_device->CreateDepthStencilState(&desc, m_depthStencilState[(UINT)DEPTHSTENCIL_STATE_TYPE::NO_TEST].GetAddressOf());
+	}
+
+	{
+		D3D11_DEPTH_STENCIL_DESC desc = {};
+		desc.DepthEnable = false; // 깊이 비교 기능 사용
+		desc.StencilEnable = false; // 스텐실 기능 비활성화
+		desc.DepthFunc = D3D11_COMPARISON_ALWAYS; // 먼저 기록된 픽셀의 뎁스보다 작거나 같은 경우 통과
+		desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO; // 뎁스 테스트 성공 시, 깊이 기록
+
+		m_device->CreateDepthStencilState(&desc, m_depthStencilState[(UINT)DEPTHSTENCIL_STATE_TYPE::NO_TEST_NO_WRITE].GetAddressOf());
+	}
+
+	return S_OK;
+}
+
+int CDevice::CreateBlendState()
+{
+	m_blendState[(UINT)BLEND_STATE_TYPE::DEFAULT] = nullptr;
+
+	{
+		D3D11_BLEND_DESC desc = {};
+		desc.AlphaToCoverageEnable = false;
+		desc.IndependentBlendEnable = false;
+
+		desc.RenderTarget[0].BlendEnable = true;
+
+		// 블랜딩 방식
+		desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+
+		// 블랜딩 계수
+		desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		// 알파끼리의 혼합식
+		desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+
+		m_device->CreateBlendState(&desc, m_blendState[(UINT)BLEND_STATE_TYPE::ALPHA_BLEND].GetAddressOf());
+	}
+
+	{
+		D3D11_BLEND_DESC desc = {};
+		desc.AlphaToCoverageEnable = true;
+		desc.IndependentBlendEnable = false;
+
+		desc.RenderTarget[0].BlendEnable = true;
+
+		// 블랜딩 방식
+		desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+
+		// 블랜딩 계수
+		desc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+		desc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+		desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		// 알파끼리의 혼합식
+		desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+
+		m_device->CreateBlendState(&desc, m_blendState[(UINT)BLEND_STATE_TYPE::ALPHA_BLEND].GetAddressOf());
 	}
 
 	return S_OK;

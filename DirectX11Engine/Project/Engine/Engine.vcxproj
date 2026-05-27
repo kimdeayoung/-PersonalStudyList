@@ -163,6 +163,8 @@ call Copy.bat</Command>
     <ClInclude Include="CAssetManager.h" />
     <ClInclude Include="CCamera.h" />
     <ClInclude Include="CCameraMoveScipt.h" />
+    <ClInclude Include="CCollider2D.h" />
+    <ClInclude Include="CCollisionManager.h" />
     <ClInclude Include="CComponent.h" />
     <ClInclude Include="CComputeShader.h" />
     <ClInclude Include="CConstBuffer.h" />
@@ -178,7 +180,7 @@ call Copy.bat</Command>
     <ClInclude Include="CLevelManager.h" />
     <ClInclude Include="CMaterial.h" />
     <ClInclude Include="CMesh.h" />
-    <ClInclude Include="CMeshRenderComponent.h" />
+    <ClInclude Include="CMeshRender.h" />
     <ClInclude Include="components.h" />
     <ClInclude Include="CPathManager.h" />
     <ClInclude Include="CPlayerScript.h" />
@@ -206,6 +208,8 @@ call Copy.bat</Command>
     <ClCompile Include="CAssetManager_Init.cpp" />
     <ClCompile Include="CCamera.cpp" />
     <ClCompile Include="CCameraMoveScipt.cpp" />
+    <ClCompile Include="CCollider2D.cpp" />
+    <ClCompile Include="CCollisionManager.cpp" />
     <ClCompile Include="CComponent.cpp" />
     <ClCompile Include="CComputeShader.cpp" />
     <ClCompile Include="CConstBuffer.cpp" />
@@ -221,7 +225,7 @@ call Copy.bat</Command>
     <ClCompile Include="CLevelManager.cpp" />
     <ClCompile Include="CMaterial.cpp" />
     <ClCompile Include="CMesh.cpp" />
-    <ClCompile Include="CMeshRenderComponent.cpp" />
+    <ClCompile Include="CMeshRender.cpp" />
     <ClCompile Include="CPathManager.cpp" />
     <ClCompile Include="CPlayerScript.cpp" />
     <ClCompile Include="CRenderComponent.cpp" />

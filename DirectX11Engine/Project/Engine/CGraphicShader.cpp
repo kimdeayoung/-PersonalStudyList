@@ -6,6 +6,8 @@ CGraphicShader::CGraphicShader()
 	: CShader(ASSET_TYPE::GRAPHICS_SHADER)
 	, m_topologyType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
 	, m_rasterizerType(RASTERIZER_STATE_TYPE::CULL_BACK)
+	, m_depthStencilType(DEPTHSTENCIL_STATE_TYPE::LESS)
+	, m_blendStateType(BLEND_STATE_TYPE::DEFAULT)
 {
 }
 
@@ -107,4 +109,7 @@ void CGraphicShader::Binding()
 	context->RSSetState(CDevice::GetInstance()->GetRasterizerState(m_rasterizerType).Get());
 
 	context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
+
+	context->OMSetDepthStencilState(CDevice::GetInstance()->GetDepthStencilState(m_depthStencilType).Get(), 0);
+	context->OMSetBlendState(CDevice::GetInstance()->GetBlendState(m_blendStateType).Get(), Vector4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
 }

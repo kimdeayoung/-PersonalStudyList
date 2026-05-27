@@ -14,10 +14,11 @@ public:
     void Start();
     void Update();
     void FinalUpdate();
-    void Render();
 
 public:
     void AddObject(UINT layerIndex, CGameObject* object);
+    void RemoveObject(CGameObject* object);
+
     CLayer* GetLayer(int layerIndex) { return m_layers[layerIndex]; }
 
 //public:
